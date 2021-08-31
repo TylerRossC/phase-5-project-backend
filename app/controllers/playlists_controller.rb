@@ -1,51 +1,58 @@
 class PlaylistsController < ApplicationController
-  before_action :set_playlist, only: [:show, :update, :destroy]
 
   # GET /playlists
   def index
-    @playlists = Playlist.all
-
-    render json: @playlists
-  end
-
-  # GET /playlists/1
-  def show
-    render json: @playlist
+    if session[:user_id]
+      user = User.find(session[:user_id])
+      playlists = {playlists: user.playlists}
+      render json: playlists, status: :ok
+    end
   end
 
   # POST /playlists
   def create
-    @playlist = Playlist.new(playlist_params)
-
-    if @playlist.save
-      render json: @playlist, status: :created, location: @playlist
-    else
-      render json: @playlist.errors, status: :unprocessable_entity
-    end
+    if session[:user_id]
+      playlist = Playlist.create(playlist_params)
+      playlist.update!(user_id: session[:user_id])
+      render json: { playlist: playlist }, status: :created
+  else
+      render json: { errors: ["log in to create a playlist"] }, status: :unauthorized
   end
+end
+  
+# GET /playlists/1
+  def show
+    playlist = Playlist.find(params[:id])
+    render json: {playlist: playlist}
+  end
+
 
   # PATCH/PUT /playlists/1
   def update
-    if @playlist.update(playlist_params)
-      render json: @playlist
-    else
-      render json: @playlist.errors, status: :unprocessable_entity
+    playlist = Playlist.find(params[:id])
+        if playlist[:user_id] == session[:user_id]
+            playlist.update(playlist_params)
+            render json: { playlist: playlist }, status: :accepted
+        else
+            render json: {errors: ["Not authorized"]}, status: :unauthorized 
+        end
     end
-  end
 
   # DELETE /playlists/1
   def destroy
-    @playlist.destroy
+    playlist = Playlist.find(params[:id])
+    if playlist[:user_id] === session[:user_id]
+         playlist.destroy 
+         head :no_content
+    else
+     render json: {errors: ["Not authorized"]}, status: :unauthorized 
+    end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_playlist
-      @playlist = Playlist.find(params[:id])
-    end
 
     # Only allow a list of trusted parameters through.
     def playlist_params
-      params.require(:playlist).permit(:title, :song_count, :user_id)
+      params.permit(:title, :song_count, :user_id)
     end
 end
