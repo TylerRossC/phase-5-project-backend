@@ -23,7 +23,7 @@ end
 # GET /playlists/1
   def show
     playlist = Playlist.find(params[:id])
-    render json: {playlist: playlist}
+    render json: {playlist: playlist.songs}
   end
 
 
@@ -53,6 +53,6 @@ end
 
     # Only allow a list of trusted parameters through.
     def playlist_params
-      params.permit(:title, :song_count, :user_id)
+      params.permit(:title, :genre, :song_count, :user_id)
     end
 end

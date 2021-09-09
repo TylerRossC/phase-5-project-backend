@@ -1,5 +1,5 @@
 class UserSerializer < ActiveModel::Serializer
   attributes :id, :username, :password, :password_digest
 
-  has_many :playlists 
+  has_many :playlists, serializer: PlaylistSerializer
 end

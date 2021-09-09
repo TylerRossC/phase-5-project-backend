@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   
+  resources :songs
   resources :playlists
   resources :users
 
@@ -8,4 +9,6 @@ Rails.application.routes.draw do
   post '/login', to: 'sessions#create'
   
   delete '/logout', to: 'sessions#destroy'
+
+  delete '/songs/:id', to: 'songs#destroy'
 end

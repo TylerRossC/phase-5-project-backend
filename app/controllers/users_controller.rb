@@ -6,14 +6,16 @@ class UsersController < ApplicationController
   def create
     user = User.create!(user_params)
         session[:user_id] = user.id
-        render json: { user: user, playlists: user.playlists }, status: :created
+        # render json: { user: user, playlists: user.playlists }, status: :created
+        render json: user, status: :created
   end
   
   # GET /users/1
   def show
     user = User.find_by(id: session[:user_id])
     if user
-      render json: { user: user, playlists: user.playlists }, status: :ok
+      # render json: { user: user, playlists: user.playlists }, status: :ok
+      render json: user
     else
       render json: { errors: ["Not authorized"] }, status: :unauthorized
     end
